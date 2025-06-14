@@ -1,13 +1,40 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Logo from "../assets/logo.png";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [profile, setProfile] = useState([]);
 
-  console.log(isOpen);
+  const navigate = useNavigate();
+
+  const token = localStorage.getItem("accessToken");
+
+  const getProfile = async () => {
+    try {
+      const { data } = await axios.get(
+        "https://testwalldesign.limsa.uz/auth/profile",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setProfile(data.data);
+
+      localStorage.setItem("role", data.data.role);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getProfile();
+  }, []);
 
   return (
-    <header className="w-full fixed inset-0 h-[105px] bg-[#17212b]">
+    <header className="w-full fixed inset-0 h-[105px] bg-[#17212b] z-50">
       <section className="px-8 flex items-center justify-between ">
         <div className="flex items-center gap-8">
           <button className="cursor-pointer hover:text-yellow-700 transition-all duration-300 ease-in-out">
@@ -49,13 +76,18 @@ const Navbar = () => {
           </div>
           <div className="text-right">
             <h2 className="text-sm md:text-lg font-semibold text-white">
-              John Doe <br /> <span className="text-blue-600">Омборчи</span>
+              {profile?.name} <br />{" "}
+              <span className="text-blue-600">
+                {profile?.role === "admin" ? "Админ" : "Омборчи"}
+              </span>
             </h2>
           </div>
-          <a
-            className="flex items-center bg-gradient-to-r from-yellow-400 to-yellow-700 hover:scale-105 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 ease-in-out border border-white/20 hover:border-white/30"
-            href="/"
-            data-discover="true"
+          <button
+            className="flex items-center bg-gradient-to-r cursor-pointer from-yellow-400 to-yellow-700 hover:scale-105 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 ease-in-out border border-white/20 hover:border-white/30"
+            onClick={() => {
+              localStorage.removeItem("accessToken");
+              navigate("/");
+            }}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -70,7 +102,7 @@ const Navbar = () => {
               ></path>
             </svg>
             Чиқиш
-          </a>
+          </button>
         </div>
 
         {/* notification modal */}

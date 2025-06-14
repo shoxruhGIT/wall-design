@@ -9,7 +9,7 @@ const Login = () => {
     password: "",
   });
 
-  const navigation = useNavigate()
+  const navigation = useNavigate();
 
   const handleFromData = (e) => {
     const { name, value } = e.target;
@@ -20,12 +20,17 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("https://testwalldesign.limsa.uz/auth/login", formData);
+      const { data } = await axios.post(
+        "https://testwalldesign.limsa.uz/auth/login",
+        formData
+      );
 
       setFormData({
         phone: "",
         password: "",
       });
+
+      localStorage.setItem("accessToken", data.data.accessToken);
 
       navigation("/warhouse");
     } catch (error) {
